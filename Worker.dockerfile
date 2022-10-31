@@ -50,16 +50,9 @@ RUN apk -U upgrade \
 ### Worker Build Configuration
 FROM python:alpine as worker_build
 
-
    RUN --mount=type=cache,target=/root/.cache/pip \
         pip install supervisor~=4.2
     RUN mkdir -p /etc/supervisor/conf.d
-
-    RUN rm /etc/nginx/sites-enabled/default
-    RUN mkdir /var/log/nginx /var/lib/nginx
-    RUN chown www-data /var/lib/nginx
-    RUN ln -sf /dev/stdout /var/log/nginx/access.log
-    RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 ### Build Production
 
@@ -87,6 +80,12 @@ RUN apk -U upgrade \
 
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
+
+RUN rm /etc/nginx/sites-enabled/default
+RUN mkdir /var/log/nginx /var/lib/nginx
+RUN chown www-data /var/lib/nginx
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY --from=build-malloc /tmp/hardened_malloc/out/libhardened_malloc.so /usr/local/lib/
 COPY --from=builder /install /usr/local
