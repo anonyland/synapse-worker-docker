@@ -81,6 +81,12 @@ RUN apk -U upgrade \
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
 
+COPY --from=deps_base /usr/sbin/nginx /usr/sbin
+COPY --from=deps_base /usr/share/nginx /usr/share/nginx
+COPY --from=deps_base /usr/lib/nginx /usr/lib/nginx
+COPY --from=deps_base /etc/nginx /etc/nginx
+
+
 RUN rm /etc/nginx/sites-enabled/default
 RUN mkdir /var/log/nginx /var/lib/nginx
 RUN chown www-data /var/lib/nginx
@@ -91,12 +97,7 @@ COPY --from=build-malloc /tmp/hardened_malloc/out/libhardened_malloc.so /usr/loc
 COPY --from=builder /install /usr/local
 COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
-COPY --from=deps_base /usr/sbin/nginx /usr/sbin
-COPY --from=deps_base /usr/share/nginx /usr/share/nginx
-COPY --from=deps_base /usr/lib/nginx /usr/lib/nginx
-COPY --from=deps_base /etc/nginx /etc/nginx
 COPY ./rootfs/conf-workers/* /conf/
-
 # Copy a script to prefix log lines with the supervisor program name
 COPY ./rootfs/prefix-log /usr/local/bin/
 
