@@ -81,10 +81,10 @@ RUN apk -U upgrade \
  # Ensure www-data user exists
 
  RUN adduser -S www-data -u 1000
- 
-RUN set -x \
-	&& addgroup -g 82 -S www-data \
-	&& adduser -u 82 -D -S -G www-data www-data
+
+RUN set -x ; \
+  addgroup -g 82 -S www-data ; \
+  adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
 RUN apk --no-cache add shadow && usermod -aG www-data nginx
 
