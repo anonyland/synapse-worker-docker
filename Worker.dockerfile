@@ -103,7 +103,7 @@ COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
 COPY ./rootfs/conf-workers/* /conf/
 # Copy a script to prefix log lines with the supervisor program name
-COPY ./rootfs/prefix-log /usr/local/bin/
+COPY ./prefix-log /usr/local/bin/
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"
 
