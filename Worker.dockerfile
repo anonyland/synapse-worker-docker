@@ -79,12 +79,11 @@ RUN apk -U upgrade \
  && rm -rf /var/cache/apk/*
  
  # Ensure www-data user exists
-
 RUN set -x ; \
   addgroup -g 82 -S www-data ; \
   adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
-RUN apk --no-cache add shadow && usermod -aG www-data nginx
+RUN apk --no-cache add shadow && usermod -aG www-data
 
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
