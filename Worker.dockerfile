@@ -78,10 +78,15 @@ RUN apk -U upgrade \
  && adduser -g ${GID} -u ${UID} --disabled-password --gecos "" synapse \
  && rm -rf /var/cache/apk/*
  
- # ensure www-data user exists
+ # Ensure www-data user exists
+
+ RUN adduser -S www-data -u 1000
+ 
 RUN set -x \
 	&& addgroup -g 82 -S www-data \
 	&& adduser -u 82 -D -S -G www-data www-data
+
+RUN apk --no-cache add shadow && usermod -aG www-data nginx
 
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
