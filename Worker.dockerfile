@@ -22,7 +22,6 @@ RUN apk --no-cache add build-base git gnupg && cd /tmp \
 FROM alpine:latest as deps_base
 
 RUN apk --no-cache add nginx redis
-RUN rm /etc/nginx/sites-enabled/default
 
 ### Redis Base
 FROM redis:6-alpine AS redis_base
