@@ -22,6 +22,7 @@ RUN apk --no-cache add build-base git gnupg && cd /tmp \
 FROM alpine:latest as deps_base
 
 RUN apk --no-cache add nginx redis
+RUN rm /etc/nginx/sites-enabled/default
 
 ### Redis Base
 FROM redis:6-alpine AS redis_base
@@ -81,14 +82,14 @@ RUN apk -U upgrade \
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
 
+
+RUN mkdir /var/log/nginx /var/lib/nginx
+
 COPY --from=deps_base /usr/sbin/nginx /usr/sbin
 COPY --from=deps_base /usr/share/nginx /usr/share/nginx
 COPY --from=deps_base /usr/lib/nginx /usr/lib/nginx
 COPY --from=deps_base /etc/nginx /etc/nginx
 
-
-RUN rm /etc/nginx/sites-enabled/default
-RUN mkdir /var/log/nginx /var/lib/nginx
 RUN chown www-data /var/lib/nginx
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
