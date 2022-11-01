@@ -17,7 +17,6 @@ RUN apk --no-cache add build-base git gnupg && cd /tmp \
  && cd hardened_malloc && git verify-tag $(git describe --tags) \
  && make CONFIG_NATIVE=${CONFIG_NATIVE} VARIANT=${VARIANT}
 
-
 ### Nginx & Redis
 FROM alpine:latest as deps_base
 
@@ -78,7 +77,6 @@ RUN apk -U upgrade \
  && adduser -g ${GID} -u ${UID} --disabled-password --gecos "" synapse \
  && rm -rf /var/cache/apk/*
  
- # Ensure www-data user exists
 RUN set -x ; \
   addgroup -g 82 -S www-data ; \
   adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
@@ -102,7 +100,6 @@ COPY --from=builder /install /usr/local
 COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
 COPY ./rootfs/conf-workers/* /conf/
-# Copy a script to prefix log lines with the supervisor program name
 COPY ./prefix-log /usr/local/bin/
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"

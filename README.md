@@ -9,6 +9,20 @@ It would be advisable to use this in conjunction with Synapse-Docker.
 
 Uses alpine as the base images and features a hardened memory allocator and has mjonir support.
 
+## Building
+
+``
+git clone https://codeberg.org/deathrow/synapse-worker-docker/
+``
+
+``
+cd synapse-worker-docker
+``
+
+``
+docker build .
+``
+
 ## Links
 
 - [Synapse Docker](https://github.com/matrix-org/synapse/tree/develop/docker)
