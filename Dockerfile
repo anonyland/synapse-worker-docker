@@ -99,9 +99,11 @@ COPY --from=build-malloc /tmp/hardened_malloc/out/libhardened_malloc.so /usr/loc
 COPY --from=builder /install /usr/local
 COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
+
+COPY ./rootfs/start.py /start.py
 COPY ./rootfs/conf-workers/* /conf/
+COPY ./rootfs/configure_workers_and_start.py /configure_workers_and_start.py
 COPY ./prefix-log /usr/local/bin/
-COPY ./rootfs /
 
 RUN chown -R synapse:synapse /start.py
 RUN chmod 755 /start.py
