@@ -17,7 +17,6 @@ RUN apk --no-cache add build-base git gnupg && cd /tmp \
  && cd hardened_malloc && git verify-tag $(git describe --tags) \
  && make CONFIG_NATIVE=${CONFIG_NATIVE} VARIANT=${VARIANT}
 
-
 ### Nginx & Redis
 FROM alpine:latest as deps_base
 
@@ -50,16 +49,9 @@ RUN apk -U upgrade \
 ### Worker Build Configuration
 FROM python:alpine as worker_build
 
-
    RUN --mount=type=cache,target=/root/.cache/pip \
         pip install supervisor~=4.2
     RUN mkdir -p /etc/supervisor/conf.d
-
-    RUN rm /etc/nginx/sites-enabled/default
-    RUN mkdir /var/log/nginx /var/lib/nginx
-    RUN chown www-data /var/lib/nginx
-    RUN ln -sf /dev/stdout /var/log/nginx/access.log
-    RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 ### Build Production
 
@@ -84,22 +76,31 @@ RUN apk -U upgrade \
         curl \
  && adduser -g ${GID} -u ${UID} --disabled-password --gecos "" synapse \
  && rm -rf /var/cache/apk/*
+ 
+RUN set -x ; \
+  addgroup -g 82 -S www-data ; \
+  adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
+
+RUN mkdir /var/log/nginx /var/lib/nginx
+
+COPY --from=deps_base /usr/sbin/nginx /usr/sbin
+COPY --from=deps_base /usr/share/nginx /usr/share/nginx
+COPY --from=deps_base /usr/lib/nginx /usr/lib/nginx
+COPY --from=deps_base /etc/nginx /etc/nginx
+
+RUN chown www-data /var/lib/nginx
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY --from=build-malloc /tmp/hardened_malloc/out/libhardened_malloc.so /usr/local/lib/
 COPY --from=builder /install /usr/local
 COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
-COPY --from=deps_base /usr/sbin/nginx /usr/sbin
-COPY --from=deps_base /usr/share/nginx /usr/share/nginx
-COPY --from=deps_base /usr/lib/nginx /usr/lib/nginx
-COPY --from=deps_base /etc/nginx /etc/nginx
 COPY ./rootfs/conf-workers/* /conf/
-
-# Copy a script to prefix log lines with the supervisor program name
-COPY ./rootfs/prefix-log /usr/local/bin/
+COPY ./prefix-log /usr/local/bin/
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"
 
