@@ -101,6 +101,10 @@ COPY --chown=synapse:synapse rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
 COPY ./rootfs/conf-workers/* /conf/
 COPY ./prefix-log /usr/local/bin/
+COPY ./rootfs /
+
+RUN chown -R synapse:synapse /syart.py
+RUN chmod 755 /start.py
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"
 
@@ -110,7 +114,7 @@ VOLUME /data
 
 EXPOSE 8008/tcp
 
-ENTRYPOINT ["python3", "configure_workers_and_start.py"]
+ENTRYPOINT ["/configure_workers_and_start.py"]
 
 HEALTHCHECK --start-period=5s --interval=15s --timeout=5s \
     CMD /bin/sh /healthcheck.sh
