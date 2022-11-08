@@ -103,7 +103,7 @@ COPY ./rootfs/conf-workers/* /conf/
 COPY ./prefix-log /usr/local/bin/
 COPY ./rootfs /
 
-RUN chown -R synapse:synapse /syart.py
+RUN chown -R synapse:synapse /start.py
 RUN chmod 755 /start.py
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"
