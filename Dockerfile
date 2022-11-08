@@ -110,7 +110,7 @@ VOLUME /data
 
 EXPOSE 8008/tcp
 
-ENTRYPOINT ["python3", "workers.py"]
+ENTRYPOINT ["python3", "configure_workers_and_start.py"]
 
 HEALTHCHECK --start-period=5s --interval=15s --timeout=5s \
     CMD /bin/sh /healthcheck.sh
