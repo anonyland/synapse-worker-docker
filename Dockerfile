@@ -1,4 +1,4 @@
-ARG SYNAPSE_VERSION=1.70.1
+ARG SYNAPSE_VERSION=1.73
 ARG HARDENED_MALLOC_VERSION=11
 ARG UID=991
 ARG GID=991
@@ -46,13 +46,6 @@ RUN apk -U upgrade \
  && pip install --prefix="/install" --no-warn-script-location \
         matrix-synapse[all]==${SYNAPSE_VERSION}
 
-### Worker Build Configuration
-FROM python:alpine as worker_build
-
-   RUN --mount=type=cache,target=/root/.cache/pip \
-        pip install supervisor~=4.2
-    RUN mkdir -p /etc/supervisor/conf.d
-
 ### Build Production
 
 FROM python:alpine
@@ -84,6 +77,12 @@ RUN set -x ; \
 RUN pip install --upgrade pip \
  && pip install -e "git+https://github.com/matrix-org/mjolnir.git#egg=mjolnir&subdirectory=synapse_antispam"
 
+RUN --mount=type=cache,target=/root/.cache/pip \
+        pip install supervisor~=4.2
+RUN mkdir -p /etc/supervisor/conf.d
+
+RUN pip install Jinja2
+
 RUN mkdir /var/log/nginx /var/lib/nginx
 
 COPY --from=deps_base /usr/sbin/nginx /usr/sbin
@@ -97,7 +96,7 @@ RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY --from=build-malloc /tmp/hardened_malloc/out/libhardened_malloc.so /usr/local/lib/
 COPY --from=builder /install /usr/local
-COPY --chown=synapse:synapse rootfs /
+COPY --chown=synapse:synapse ./rootfs /
 COPY --from=redis_base /usr/local/bin/redis-server /usr/local/bin
 
 COPY ./rootfs/start.py /start.py
@@ -105,7 +104,6 @@ COPY ./rootfs/conf-workers/* /conf/
 COPY ./rootfs/configure_workers_and_start.py /configure_workers_and_start.py
 COPY ./prefix-log /usr/local/bin/
 
-RUN chown -R synapse:synapse /start.py
 RUN chmod 755 /start.py
 
 ENV LD_PRELOAD="/usr/local/lib/libhardened_malloc.so"
