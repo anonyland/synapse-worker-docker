@@ -67,6 +67,7 @@ RUN apk -U upgrade \
         xmlsec \
         git \
         curl \
+        icu-libs \
  && adduser -g ${GID} -u ${UID} --disabled-password --gecos "" synapse \
  && rm -rf /var/cache/apk/*
  
