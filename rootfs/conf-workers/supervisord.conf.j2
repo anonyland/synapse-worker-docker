@@ -3,7 +3,12 @@
 # that have been selected.
 [supervisord]
 nodaemon=true
-user=root
+user=synapse
+pidfile=/tmp/supervisord.pid
+directory=/tmp
+childlogdir=/tmp
+logfile=/dev/stdout
+logfile_maxbytes=0
 
 [include]
 files = /etc/supervisor/conf.d/*.conf
