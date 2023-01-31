@@ -44,7 +44,7 @@ RUN apk -U upgrade \
  && rustup-init -y && source $HOME/.cargo/env \
  && pip install --upgrade pip \
  && pip install --prefix="/install" --no-warn-script-location \
-   -e "git+https://git.anonymousland.org/deathrow/synapse-product#egg=matrix-synapse[all]==${SYNAPSE_VERSION}"
+   -e "git+https://git.anonymousland.org/anonymousland/synapse-product#egg=matrix-synapse[all]==${SYNAPSE_VERSION}"
 
 ### Build Production
 
